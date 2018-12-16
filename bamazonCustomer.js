@@ -1,22 +1,167 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////// DEPENDENCIES ///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
 var connection = mysql.createConnection({
     host: "localhost",
-
-    // Your port; if not 3306
     port: 8889,
-
-    // Your username
     user: "root",
-    // Your password
     password: "root",
     database: "bamazon"
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////// HELPER FUNCTIONS ///////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This function is used to convert between the ID number of an item from a SQL database, and the index value
+ * of that item in the array returned from querying the SQL database.
+ *
+ * This takes an array of data from SQL and searches each item to find the index value associated with a specific
+ * item.item_id value. This way, an accurate index value will be returned even if items have been added or subtracted
+ * from the SQL database and the automatically generated item IDs skip values.
+ *
+ * @param {integer} sqlIndex
+ * @param {data array} arr
+ */
+function getIndexVal(sqlIndex, arr) {
+    var arrIndex = -1;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].item_id === sqlIndex) {
+            arrIndex = i;
+        }
+    }
+    return arrIndex;
+}
+
+/**
+ * This prints out all items available for purchase, and calls the function to start the shopping process.
+ * Note: if an item has 0 stock, this item will not be displayed since the user cannot buy any of it!
+ */
+function displayItems() {
+    connection.query("SELECT * FROM PRODUCTS", function(error, data) {
+        if (error) throw error;
+        data.forEach(item => {
+            if (item.stock > 0) {
+                console.log(
+                    `######################
+Item ID: ${item.item_id}
+Product: ${item.prod_name}
+Department: ${item.dept_name}
+Price: ${item.price}
+Items Available: ${item.stock}
+######################\n`
+                );
+            }
+        });
+        userProdID = getProdID(data);
+    });
+}
+
+/**
+ * This uses Inquirer to ask the user for the ID of a product. If that ID exists in the data array returned from querying the
+ * original SQL database, this walks the user through the rest of the purchasing process. If this ID does NOT exist,
+ * it will rerun, prompting the user for a valid ID.
+ * @param {array} data
+ */
+function getProdID(data) {
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "id_chosen",
+                message: "What is the ID of the product you would like to buy?"
+            }
+        ])
+        .then(answers => {
+            userProdID = parseInt(answers.id_chosen);
+            arrID = getIndexVal(userProdID, data);
+
+            if (arrID === -1) {
+                console.log("Sorry, I don't recognize that ID!");
+                getProdID(data);
+            } else {
+                getProdQuantity(data[arrID]);
+            }
+        });
+}
+
+/**
+ * This prompts the user, once they have chosen an item to purchase, to enter the number of items they wish to purchase. If the
+ * number of items is larger than the available number, this will continue to ask the user for a valid number. If a valid number
+ * is entered, the function calls the update function and provides the user with a total amount for their purchase.
+ * @param {object} item
+ */
+function getProdQuantity(item) {
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "quantity_chosen",
+                message: `How many ${item.prod_name}s would you like to buy?`
+            }
+        ])
+        .then(answers => {
+            userQuantity = parseInt(answers.quantity_chosen);
+            if (userQuantity > item.stock) {
+                console.log(
+                    `Sorry, I don't have enough ${
+                        item.prod_name
+                    }s! Please insert a smaller quantity!`
+                );
+                getProdQuantity(item);
+            } else if (userQuantity <= 0) {
+                console.log("Please enter a value greater than 0!");
+            } else {
+                var newQuant = item.stock - userQuantity;
+                var total = userQuantity * item.price;
+                removeStock(item.item_id, newQuant, total);
+            }
+        });
+}
+
+/**
+ * This creates the query used to update the value of items in the SQL table. Once the products have been updated within
+ * the SQL table, the total cost to the customer is displayed and the connection is terminated.
+ * @param {integer} item_id
+ * @param {integer} quantity
+ * @param {float} total
+ */
+function removeStock(item_id, quantity, total) {
+    // var query =
+    connection.query(
+        "UPDATE products SET ? WHERE ?",
+        [
+            {
+                stock: quantity
+            },
+            {
+                item_id: item_id
+            }
+        ],
+        function(err, res) {
+            if (err) throw err;
+
+            console.log(res.affectedRows + " products updated!\n");
+            console.log(`Your total is: $${total}`);
+        }
+    );
+    connection.end();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////// MAIN LOGIC CONTROL /////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Upon running the program and connecting to the server, display all available items
+ */
 connection.connect(function(err) {
     if (err) throw err;
-    // console.log("connected as id " + connection.threadId);
     displayItems();
 });
 
@@ -42,115 +187,3 @@ connection.connect(function(err) {
  *       WHERE ITEM_ID = USERINPUT)
  * 8. show customer total
  */
-
-function displayItems() {
-    connection.query("SELECT * FROM PRODUCTS", function(error, data) {
-        if (error) throw error;
-        data.forEach(item => {
-            console.log(
-                `######################
-Item ID: ${item.item_id}
-Product: ${item.prod_name}
-Department: ${item.dept_name}
-Price: ${item.price}
-Items Available: ${item.stock}
-######################\n`
-            );
-        });
-        userProdID = getProdID(data);
-    });
-}
-
-function getProdID(data) {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "id_chosen",
-                message: "What is the ID of the product you would like to buy?"
-            }
-        ])
-        .then(answers => {
-            // connection.end();
-            // console.log(answers);
-            userProdID = parseInt(answers.id_chosen);
-            arrID = getIndexVal(userProdID, data);
-
-            // console.log(arrID);
-
-            if (arrID === -1) {
-                console.log("Sorry, I don't recognize that ID!");
-                getProdID(data);
-            } else {
-                getProdQuantity(data, data[arrID]);
-            }
-        });
-}
-
-function getProdQuantity(data, item) {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "quantity_chosen",
-                message: `How many ${item.prod_name}s would you like to buy?`
-            }
-        ])
-        .then(answers => {
-            userQuantity = parseInt(answers.quantity_chosen);
-            if (userQuantity > item.stock) {
-                console.log(
-                    `Sorry, I don't have enough ${
-                        item.prod_name
-                    }s! Please insert a smaller quantity!`
-                );
-                getProdQuantity(data, item);
-            } else {
-                var newQuant = item.stock - userQuantity;
-                // console.log(userQuantity);
-                var total = userQuantity * item.price;
-                removeStock(item.item_id, newQuant, total);
-            }
-        });
-}
-
-function removeStock(item_id, quantity, total) {
-    // var query =
-    connection.query(
-        "UPDATE products SET ? WHERE ?",
-        [
-            {
-                stock: quantity
-            },
-            {
-                item_id: item_id
-            }
-        ],
-        function(err, res) {
-            if (err) throw err;
-
-            console.log(res.affectedRows + " products updated!\n");
-            console.log(`Your total is: $${total}`);
-        }
-    );
-    connection.end();
-
-    // logs the actual query being run
-    // console.log(query.sql);
-}
-
-// note: we need to do it this way to account for the possibility
-// of adding/deleting information in the sql table
-function getIndexVal(sqlIndex, arr) {
-    var arrIndex = -1;
-    for (var i = 0; i < arr.length; i++) {
-        if (arr[i].item_id === sqlIndex) {
-            arrIndex = i;
-        }
-    }
-    return arrIndex;
-}
-
-// arrT = [{ item_id: 3 }, { item_id: 7 }];
-
-// console.log(getIndexVal(9, arrT));
