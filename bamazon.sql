@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS bamazon;
+
 CREATE DATABASE bamazon;
 
 USE bamazon;
@@ -10,7 +12,6 @@ price DECIMAL(11,2),
 stock INTEGER(11),
 PRIMARY KEY (item_id)
 );
-
 
 select * from products;
 
