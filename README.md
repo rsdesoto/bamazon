@@ -1,12 +1,12 @@
 # bamazon
 
-An inventory management system, running on mysql.
+An inventory management system, running on mySQL.
 
 ## Instructions:
 
 ##### Installing the Program
 
-Please note: this game requires [Node.js](https://nodejs.org/en/) and [mySQL](https://www.mysql.com/) in order to be played. Make sure they are both installed on your computer!
+Please note: this application requires [Node.js](https://nodejs.org/en/) and [mySQL](https://www.mysql.com/) in order to be used. Make sure they are both installed on your computer!
 
 Download the program, mySQL information, and all other files. Navigate to the file location using the terminal, or open the files with a code editor with a built-in terminal. Install all necessary packages using the command "npm i".
 
@@ -51,8 +51,6 @@ Finally, managers can add new items to store entirely. When choosing this option
 Once the item has been created, it will show up in the shop's inventory and will be available for customers.
 
 ![Add Item](https://raw.githubusercontent.com/rsdesoto/bamazon/master/images/add_new_product2.png)
-
-![Gameplay Example](https://raw.githubusercontent.com/rsdesoto/hangman-node/master/images/gameplay.png)
 
 ## Credits:
 
