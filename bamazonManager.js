@@ -260,7 +260,6 @@ function displayOptions() {
             }
         ])
         .then(answers => {
-            console.log(answers);
             if (answers.managerAction === "View products for sale") {
                 console.log("All items available: \n");
                 displayItems();
