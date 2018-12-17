@@ -38,20 +38,26 @@ The second item available is printing a list of all items with 4 or fewer units 
 
 ![Low Inventory](https://raw.githubusercontent.com/rsdesoto/bamazon/master/images/low_inventory.png)
 
-Managers can add more items to the inventory. When choosing this option,
+Managers can add more items to the inventory. When choosing this option, managers will be prompted to choose an item from a list. Once it has been chosen, they will be prompted to add the number of items being added to the inventory.
+
+![Update Inventory](https://github.com/rsdesoto/bamazon/blob/master/images/add_to_inventory_1.png?raw=true)
+
+![Update Inventory](https://raw.githubusercontent.com/rsdesoto/bamazon/master/images/add_to_inventory_2.png)
+
+Finally, managers can add new items to store entirely. When choosing this option, managers will be walked through creating a new item.
+
+![Add Item](https://raw.githubusercontent.com/rsdesoto/bamazon/master/images/add_new_product1.png)
+
+Once the item has been created, it will show up in the shop's inventory and will be available for customers.
+
+![Add Item](https://raw.githubusercontent.com/rsdesoto/bamazon/master/images/add_new_product2.png)
 
 ![Gameplay Example](https://raw.githubusercontent.com/rsdesoto/hangman-node/master/images/gameplay.png)
 
-##### Replay or Exit
-
-Once the game has been finished, the game will provide a prompt to replay, or to quit.
-
-![Lose Screen](https://raw.githubusercontent.com/rsdesoto/hangman-node/master/images/endgame.png)
-
-**Good luck!**
-
 ## Credits:
 
-## IMPORTANT
+The code in Inquirer that uses regex to validate the user input was taken from some of the inquirer examples -- specifically [pizza.js](https://github.com/SBoudrias/Inquirer.js/blob/master/packages/inquirer/examples/pizza.js).
 
-Before you can proceed, make sure you have both [mySQL](https://www.mysql.com/) and [Node.js](https://nodejs.org/en/) installed on your computer!
+## Contact me:
+
+if you run into bugs or have any questions, email me at ry.e.desoto@gmail.com
