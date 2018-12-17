@@ -1,0 +1,12 @@
+item_id,prod_name,dept_name,price,stock
+1,mug,"home goods",4.99,50
+2,"learn to code",books,19.99,200
+3,sweater,clothes,29.99,150
+4,hat,clothes,19.99,4
+5,"cat toy","pet goods",2.99,17
+6,"cat food","pet goods",39.99,12
+7,"dog toy","pet goods",3.99,123
+8,"dog bed","pet goods",19.99,10
+9,"d20 set",games,9.99,40
+10,"d6 set",games,8.99,43
+11,"game manual",books,49.99,20
